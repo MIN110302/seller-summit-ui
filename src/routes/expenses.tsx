@@ -135,7 +135,7 @@ function ExpensesPage() {
                 <c.icon className={cn("h-4 w-4", c.color)} />
               </div>
               <div className="mt-3 text-xs text-muted-foreground font-medium">{c.key}</div>
-              <div className="text-lg font-semibold tracking-tight">${c.value.toLocaleString()}</div>
+              <div className="text-lg font-semibold tracking-tight">{format(c.value, { decimals: 0 })}</div>
               <div className="text-[11px] text-muted-foreground mt-0.5">{c.change} vs last month</div>
             </CardContent>
           </Card>
@@ -204,7 +204,7 @@ function ExpensesPage() {
                   <TableCell className="pl-6 text-muted-foreground">{e.date}</TableCell>
                   <TableCell className="font-medium">{e.desc}</TableCell>
                   <TableCell><Badge variant="outline" className="rounded-full">{e.cat}</Badge></TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold pr-6">${e.amount.toFixed(2)}</TableCell>
+                  <TableCell className="text-right tabular-nums font-semibold pr-6">{format(e.amount)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
