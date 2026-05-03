@@ -34,9 +34,14 @@ const stateStyle: Record<State, string> = {
 function IntegrationsPage() {
   const [list, setList] = useState(initial);
   const toggle = (i: number) => {
-    setList(prev => prev.map((x, idx) => idx === i && x.state !== "Coming Soon"
-      ? { ...x, state: (x.state === "Connected" ? "Not Connected" : "Connected") as State }
-      : x));
+    setList(prev => prev.map((x, idx) => {
+      if (idx !== i || x.state === "Coming Soon") return x;
+      const next = (x.state === "Connected" ? "Not Connected" : "Connected") as State;
+      import("sonner").then(({ toast }) =>
+        next === "Connected" ? toast.success(`${x.name} connected`) : toast(`${x.name} disconnected`),
+      );
+      return { ...x, state: next };
+    }));
   };
 
   const connected = list.filter(x => x.state === "Connected").length;

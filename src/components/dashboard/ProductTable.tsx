@@ -1,41 +1,51 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Filter, Search, MoreHorizontal } from "lucide-react";
+import { Filter, Search, MoreHorizontal, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-
-type Status = "Profitable" | "Low Margin" | "Losing Money";
-const products: {
-  name: string; emoji: string; sku: string; price: number; cost: number; ship: number; fee: number; ad: number; status: Status;
-}[] = [
-  { name: "Wireless LED Lamp", emoji: "💡", sku: "MF-1042", price: 39.9, cost: 8.5, ship: 3.2, fee: 1.8, ad: 6.4, status: "Profitable" },
-  { name: "Portable Blender", emoji: "🥤", sku: "MF-1108", price: 49.0, cost: 14.2, ship: 4.5, fee: 2.1, ad: 22.6, status: "Low Margin" },
-  { name: "Ergonomic Laptop Stand", emoji: "💻", sku: "MF-1233", price: 34.5, cost: 7.0, ship: 3.8, fee: 1.5, ad: 5.0, status: "Profitable" },
-  { name: "Mini Thermal Printer", emoji: "🖨️", sku: "MF-1390", price: 59.0, cost: 22.0, ship: 5.0, fee: 2.6, ad: 31.0, status: "Losing Money" },
-  { name: "Smart Water Bottle", emoji: "💧", sku: "MF-1455", price: 29.9, cost: 6.5, ship: 2.8, fee: 1.3, ad: 4.8, status: "Profitable" },
-];
+import { useProducts, computeProfit, type Status } from "@/lib/products-store";
+import { usePreferences } from "@/lib/preferences";
+import { ModeToggle } from "@/components/dashboard/ModeToggle";
+import { downloadCSV } from "@/lib/csv";
+import { toast } from "sonner";
+import { useMemo, useState } from "react";
 
 const statusStyle: Record<Status, string> = {
   Profitable: "bg-[color:var(--success)]/10 text-[color:var(--success)] border border-[color:var(--success)]/25",
   "Low Margin": "bg-[color:var(--warning)]/10 text-[color:var(--warning)] border border-[color:var(--warning)]/25",
   "Losing Money": "bg-destructive/10 text-destructive border border-destructive/25",
 };
-
 const statusDot: Record<Status, string> = {
   Profitable: "bg-[color:var(--success)]",
   "Low Margin": "bg-[color:var(--warning)]",
   "Losing Money": "bg-destructive",
 };
 
-const fmt = (n: number) => `$${n.toFixed(2)}`;
-
-type Mode = "beginner" | "advanced";
-
 export function ProductTable() {
-  const [mode, setMode] = useState<Mode>("beginner");
+  const { products } = useProducts();
+  const { format, mode } = usePreferences();
+  const [query, setQuery] = useState("");
+
+  const rows = useMemo(() => {
+    return products
+      .filter((p) => p.name.toLowerCase().includes(query.toLowerCase()))
+      .slice(0, 6)
+      .map((p) => ({ ...p, ...computeProfit(p) }));
+  }, [products, query]);
+
+  const handleExport = () => {
+    downloadCSV(
+      "marginflow-dashboard-products.csv",
+      rows.map((p) => ({
+        Product: p.name, SKU: p.sku, Price: p.price.toFixed(2),
+        Cost: p.cost.toFixed(2), AdSpend: p.ad.toFixed(2),
+        NetProfit: p.profit.toFixed(2), MarginPct: p.margin.toFixed(1), Status: p.status,
+      })),
+    );
+    toast.success("Exported products.csv");
+  };
 
   return (
     <Card className="border-border/60 rounded-2xl shadow-[var(--shadow-card)] overflow-hidden">
@@ -47,28 +57,12 @@ export function ProductTable() {
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search product…" className="pl-9 h-9 w-52 bg-secondary/60 border-transparent rounded-lg" />
+            <Input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search product…" className="pl-9 h-9 w-52 bg-secondary/60 border-transparent rounded-lg" />
           </div>
-          <div className="inline-flex items-center rounded-lg bg-secondary/70 p-1 text-xs font-medium">
-            <button
-              onClick={() => setMode("beginner")}
-              className={cn(
-                "px-3 py-1.5 rounded-md transition-all",
-                mode === "beginner" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              Beginner
-            </button>
-            <button
-              onClick={() => setMode("advanced")}
-              className={cn(
-                "px-3 py-1.5 rounded-md transition-all",
-                mode === "advanced" ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              Advanced
-            </button>
-          </div>
+          <ModeToggle />
+          <Button variant="outline" size="sm" className="gap-2 rounded-lg border-border/70" onClick={handleExport}>
+            <Download className="h-4 w-4" /> Export
+          </Button>
           <Button variant="outline" size="sm" className="gap-2 rounded-lg border-border/70">
             <Filter className="h-4 w-4" /> Filter
           </Button>
@@ -81,12 +75,13 @@ export function ProductTable() {
               <TableRow className="hover:bg-transparent border-border/60">
                 <TableHead className="pl-6 h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Product</TableHead>
                 <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Revenue</TableHead>
+                <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Cost</TableHead>
                 {mode === "advanced" && (
                   <>
-                    <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Cost</TableHead>
                     <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Shipping</TableHead>
                     <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Fees</TableHead>
                     <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Ad Spend</TableHead>
+                    <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Refund%</TableHead>
                   </>
                 )}
                 <TableHead className="text-right h-12 text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">Net Profit</TableHead>
@@ -96,55 +91,50 @@ export function ProductTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {products.map((p) => {
-                const profit = p.price - p.cost - p.ship - p.fee - p.ad;
-                const margin = (profit / p.price) * 100;
-                return (
-                  <TableRow key={p.name} className="border-border/60 hover:bg-secondary/40 transition-colors">
-                    <TableCell className="pl-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center text-lg shrink-0">
-                          {p.emoji}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="font-medium text-foreground truncate">{p.name}</div>
-                          <div className="text-xs text-muted-foreground">SKU · {p.sku}</div>
-                        </div>
+              {rows.map((p) => (
+                <TableRow key={p.id} className={cn("border-border/60 hover:bg-secondary/40 transition-colors", p.status === "Losing Money" && "bg-destructive/[0.03]")}>
+                  <TableCell className="pl-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center text-lg shrink-0">{p.emoji}</div>
+                      <div className="min-w-0">
+                        <div className="font-medium text-foreground truncate">{p.name}</div>
+                        <div className="text-xs text-muted-foreground">SKU · {p.sku}</div>
                       </div>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">{fmt(p.price)}</TableCell>
-                    {mode === "advanced" && (
-                      <>
-                        <TableCell className="text-right tabular-nums text-muted-foreground">{fmt(p.cost)}</TableCell>
-                        <TableCell className="text-right tabular-nums text-muted-foreground">{fmt(p.ship)}</TableCell>
-                        <TableCell className="text-right tabular-nums text-muted-foreground">{fmt(p.fee)}</TableCell>
-                        <TableCell className="text-right tabular-nums text-muted-foreground">{fmt(p.ad)}</TableCell>
-                      </>
-                    )}
-                    <TableCell className={cn("text-right tabular-nums font-semibold", profit < 0 ? "text-destructive" : "text-foreground")}>
-                      {fmt(profit)}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums font-medium">{margin.toFixed(1)}%</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={cn("rounded-full font-medium gap-1.5 px-2.5 py-1", statusStyle[p.status])}>
-                        <span className={cn("h-1.5 w-1.5 rounded-full", statusDot[p.status])} />
-                        {p.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="pr-6">
-                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">{format(p.price)}</TableCell>
+                  <TableCell className="text-right tabular-nums text-muted-foreground">{format(p.cost)}</TableCell>
+                  {mode === "advanced" && (
+                    <>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">{format(p.ship)}</TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">{format(p.fee)}</TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">{format(p.ad)}</TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">{p.refund}%</TableCell>
+                    </>
+                  )}
+                  <TableCell className={cn("text-right tabular-nums font-semibold", p.profit < 0 ? "text-destructive" : "text-foreground")}>
+                    {format(p.profit)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums font-medium">{p.margin.toFixed(1)}%</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={cn("rounded-full font-medium gap-1.5 px-2.5 py-1", statusStyle[p.status])}>
+                      <span className={cn("h-1.5 w-1.5 rounded-full", statusDot[p.status])} />
+                      {p.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="pr-6">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg">
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         </div>
         <div className="flex items-center justify-between px-6 py-4 border-t border-border/60 text-xs text-muted-foreground">
-          <span>Showing {products.length} of {products.length} products</span>
-          <span>{mode === "beginner" ? "Simplified view" : "Detailed cost breakdown"}</span>
+          <span>Showing {rows.length} of {products.length} products</span>
+          <span className="capitalize">{mode} view</span>
         </div>
       </CardContent>
     </Card>

@@ -1,11 +1,13 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowDownRight, ArrowUpRight, DollarSign, Megaphone, Percent, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePreferences } from "@/lib/preferences";
 
-const kpis = [
+const baseKpis = [
   {
     label: "Total Revenue",
-    value: "$48,920",
+    raw: 48920,
+    isCurrency: true,
     delta: "+12.4%",
     up: true,
     hint: "vs last 30 days",
@@ -17,7 +19,8 @@ const kpis = [
   },
   {
     label: "Net Profit",
-    value: "$13,840",
+    raw: 13840,
+    isCurrency: true,
     delta: "+8.1%",
     up: true,
     hint: "vs last 30 days",
@@ -29,7 +32,8 @@ const kpis = [
   },
   {
     label: "Avg. Margin Rate",
-    value: "28.3%",
+    raw: 28.3,
+    isCurrency: false,
     delta: "-1.2%",
     up: false,
     hint: "vs last 30 days",
@@ -41,7 +45,8 @@ const kpis = [
   },
   {
     label: "Ad Spend",
-    value: "$7,420",
+    raw: 7420,
+    isCurrency: true,
     delta: "+18.0%",
     up: false,
     hint: "watch carefully",
@@ -83,6 +88,11 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 }
 
 export function KpiCards() {
+  const { format } = usePreferences();
+  const kpis = baseKpis.map((k) => ({
+    ...k,
+    value: k.isCurrency ? format(k.raw, { decimals: 0 }) : `${k.raw}%`,
+  }));
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
       {kpis.map((k) => (

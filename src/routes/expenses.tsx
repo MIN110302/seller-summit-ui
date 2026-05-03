@@ -9,9 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Megaphone, Truck, CreditCard, Wrench, RefreshCw, Box, Plus, Crown } from "lucide-react";
+import { Megaphone, Truck, CreditCard, Wrench, RefreshCw, Box, Plus, Crown, Download } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
+import { usePreferences } from "@/lib/preferences";
+import { downloadCSV } from "@/lib/csv";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/expenses")({
   head: () => ({ meta: [{ title: "Expenses — Marginflow" }] }),
@@ -47,9 +50,18 @@ const expenses = [
 ];
 
 function ExpensesPage() {
+  const { format } = usePreferences();
   const [open, setOpen] = useState(false);
   const total = categories.reduce((a, c) => a + c.value, 0);
   const top = categories.reduce((a, c) => (c.value > a.value ? c : a));
+
+  const handleExport = () => {
+    downloadCSV(
+      "marginflow-expenses.csv",
+      expenses.map((e) => ({ Date: e.date, Description: e.desc, Category: e.cat, Amount: e.amount.toFixed(2) })),
+    );
+    toast.success("Exported expenses.csv");
+  };
 
   return (
     <DashboardLayout title="Expenses" subtitle="Track every dollar leaving your business">
@@ -61,17 +73,21 @@ function ExpensesPage() {
         <CardContent className="p-6 relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="text-xs uppercase tracking-wider opacity-80 font-semibold">Total expenses · this month</div>
-            <div className="text-4xl font-semibold tracking-tight mt-2">${total.toLocaleString()}</div>
+            <div className="text-4xl font-semibold tracking-tight mt-2">{format(total, { decimals: 0 })}</div>
             <div className="text-sm opacity-90 mt-1 flex items-center gap-2">
-              <Crown className="h-4 w-4" /> Largest category: <span className="font-semibold">{top.key}</span> (${top.value.toLocaleString()})
+              <Crown className="h-4 w-4" /> Largest category: <span className="font-semibold">{top.key}</span> ({format(top.value, { decimals: 0 })})
             </div>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-white text-primary hover:bg-white/90 gap-2 rounded-lg">
-                <Plus className="h-4 w-4" /> Add Expense
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 gap-2 rounded-lg" onClick={handleExport}>
+              <Download className="h-4 w-4" /> Export
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-white text-primary hover:bg-white/90 gap-2 rounded-lg">
+                  <Plus className="h-4 w-4" /> Add Expense
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add new expense</DialogTitle>
@@ -103,10 +119,11 @@ function ExpensesPage() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button onClick={() => setOpen(false)}>Save expense</Button>
+                <Button onClick={() => { setOpen(false); toast.success("Expense added"); }}>Save expense</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </CardContent>
       </Card>
 
@@ -118,7 +135,7 @@ function ExpensesPage() {
                 <c.icon className={cn("h-4 w-4", c.color)} />
               </div>
               <div className="mt-3 text-xs text-muted-foreground font-medium">{c.key}</div>
-              <div className="text-lg font-semibold tracking-tight">${c.value.toLocaleString()}</div>
+              <div className="text-lg font-semibold tracking-tight">{format(c.value, { decimals: 0 })}</div>
               <div className="text-[11px] text-muted-foreground mt-0.5">{c.change} vs last month</div>
             </CardContent>
           </Card>
@@ -187,7 +204,7 @@ function ExpensesPage() {
                   <TableCell className="pl-6 text-muted-foreground">{e.date}</TableCell>
                   <TableCell className="font-medium">{e.desc}</TableCell>
                   <TableCell><Badge variant="outline" className="rounded-full">{e.cat}</Badge></TableCell>
-                  <TableCell className="text-right tabular-nums font-semibold pr-6">${e.amount.toFixed(2)}</TableCell>
+                  <TableCell className="text-right tabular-nums font-semibold pr-6">{format(e.amount)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

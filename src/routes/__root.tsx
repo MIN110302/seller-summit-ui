@@ -1,5 +1,8 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { Sidebar } from "@/components/dashboard/Sidebar";
+import { Toaster } from "@/components/ui/sonner";
+import { PreferencesProvider } from "@/lib/preferences";
+import { ProductsProvider } from "@/lib/products-store";
 
 import appCss from "../styles.css?url";
 
@@ -56,15 +59,20 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <div className="min-h-screen bg-background relative">
-      <div
-        className="pointer-events-none fixed inset-0 -z-10 opacity-60"
-        style={{ background: "var(--gradient-surface)" }}
-      />
-      <Sidebar />
-      <div className="lg:pl-64">
-        <Outlet />
-      </div>
-    </div>
+    <PreferencesProvider>
+      <ProductsProvider>
+        <div className="min-h-screen bg-background relative">
+          <div
+            className="pointer-events-none fixed inset-0 -z-10 opacity-60"
+            style={{ background: "var(--gradient-surface)" }}
+          />
+          <Sidebar />
+          <div className="lg:pl-64">
+            <Outlet />
+          </div>
+          <Toaster position="top-right" richColors closeButton />
+        </div>
+      </ProductsProvider>
+    </PreferencesProvider>
   );
 }

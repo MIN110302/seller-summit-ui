@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Calculator, Info, RotateCcw, TrendingUp, Target, Percent, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePreferences } from "@/lib/preferences";
+import { ModeToggle } from "@/components/dashboard/ModeToggle";
 
 export const Route = createFileRoute("/calculator")({
   head: () => ({ meta: [{ title: "Profit Calculator — Marginflow" }] }),
@@ -37,6 +39,7 @@ function Field({ label, value, onChange, prefix, suffix, hint }: {
 }
 
 function CalculatorPage() {
+  const { format, symbol, mode } = usePreferences();
   const [v, setV] = useState(defaults);
   const set = (k: keyof typeof defaults) => (val: number) => setV({ ...v, [k]: val });
 
@@ -48,8 +51,8 @@ function CalculatorPage() {
     const breakeven = totalCost;
     const roi = v.ads > 0 ? (profit / v.ads) * 100 : 0;
     let status: "profitable" | "low" | "losing" = "profitable";
-    if (profit < 0) status = "losing";
-    else if (margin < 15) status = "low";
+    if (margin < 10) status = "losing";
+    else if (margin < 25) status = "low";
     return { profit, margin, breakeven, roi, totalCost, status };
   }, [v]);
 
@@ -62,9 +65,9 @@ function CalculatorPage() {
   const result = statusStyles[calc.status];
 
   const resultCards = [
-    { label: "Net Profit", value: `$${calc.profit.toFixed(2)}`, icon: TrendingUp, accent: calc.profit >= 0 ? "text-[color:var(--success)]" : "text-destructive", bg: calc.profit >= 0 ? "bg-[color:var(--success)]/10" : "bg-destructive/10" },
+    { label: "Net Profit", value: format(calc.profit), icon: TrendingUp, accent: calc.profit >= 0 ? "text-[color:var(--success)]" : "text-destructive", bg: calc.profit >= 0 ? "bg-[color:var(--success)]/10" : "bg-destructive/10" },
     { label: "Margin Rate", value: `${calc.margin.toFixed(1)}%`, icon: Percent, accent: "text-primary", bg: "bg-primary/10" },
-    { label: "Break-Even Price", value: `$${calc.breakeven.toFixed(2)}`, icon: Target, accent: "text-[color:var(--accent)]", bg: "bg-[color:var(--accent)]/10" },
+    { label: "Break-Even Price", value: format(calc.breakeven), icon: Target, accent: "text-[color:var(--accent)]", bg: "bg-[color:var(--accent)]/10" },
     { label: "Ad ROI", value: `${calc.roi.toFixed(0)}%`, icon: DollarSign, accent: calc.roi >= 100 ? "text-[color:var(--success)]" : "text-[color:var(--warning)]", bg: calc.roi >= 100 ? "bg-[color:var(--success)]/10" : "bg-[color:var(--warning)]/10" },
   ];
 
@@ -82,20 +85,32 @@ function CalculatorPage() {
                 <p className="text-sm text-muted-foreground">All values update results instantly</p>
               </div>
             </div>
-            <Button variant="outline" size="sm" className="gap-2 rounded-lg" onClick={() => setV(defaults)}>
-              <RotateCcw className="h-4 w-4" /> Reset
-            </Button>
+            <div className="flex items-center gap-2">
+              <ModeToggle />
+              <Button variant="outline" size="sm" className="gap-2 rounded-lg" onClick={() => setV(defaults)}>
+                <RotateCcw className="h-4 w-4" /> Reset
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <Field label="Selling Price" value={v.price} onChange={set("price")} prefix="$" />
-              <Field label="Product Cost" value={v.cost} onChange={set("cost")} prefix="$" />
-              <Field label="Shipping Fee" value={v.shipping} onChange={set("shipping")} prefix="$" />
-              <Field label="Platform Fee" value={v.fees} onChange={set("fees")} prefix="$" hint="Stripe, Shopify, marketplace" />
-              <Field label="Ad Spend / Unit" value={v.ads} onChange={set("ads")} prefix="$" />
-              <Field label="Refund Rate" value={v.refund} onChange={set("refund")} suffix="%" hint="Estimated chargeback / refunds" />
-              <Field label="Other Costs" value={v.other} onChange={set("other")} prefix="$" hint="Packaging, returns, etc." />
+              <Field label="Selling Price" value={v.price} onChange={set("price")} prefix={symbol} />
+              <Field label="Product Cost" value={v.cost} onChange={set("cost")} prefix={symbol} />
+              {mode === "advanced" && (
+                <>
+                  <Field label="Shipping Fee" value={v.shipping} onChange={set("shipping")} prefix={symbol} />
+                  <Field label="Platform Fee" value={v.fees} onChange={set("fees")} prefix={symbol} hint="Stripe, Shopify, marketplace" />
+                  <Field label="Ad Spend / Unit" value={v.ads} onChange={set("ads")} prefix={symbol} />
+                  <Field label="Refund Rate" value={v.refund} onChange={set("refund")} suffix="%" hint="Estimated chargeback / refunds" />
+                  <Field label="Other Costs" value={v.other} onChange={set("other")} prefix={symbol} hint="Packaging, returns, etc." />
+                </>
+              )}
             </div>
+            {mode === "beginner" && (
+              <p className="mt-4 text-xs text-muted-foreground">
+                Beginner mode hides shipping, fees, ads, and refunds. Switch to <span className="font-semibold">Advanced</span> for the full breakdown.
+              </p>
+            )}
           </CardContent>
         </Card>
 
@@ -107,7 +122,7 @@ function CalculatorPage() {
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
             <CardContent className="p-6 relative">
               <div className="text-xs font-semibold uppercase tracking-wider opacity-90">{result.label}</div>
-              <div className="mt-3 text-4xl font-semibold tracking-tight">${calc.profit.toFixed(2)}</div>
+              <div className="mt-3 text-4xl font-semibold tracking-tight">{format(calc.profit)}</div>
               <div className="mt-1 text-sm opacity-90">{calc.margin.toFixed(1)}% margin per unit</div>
               <div className="mt-4 text-sm opacity-90 leading-relaxed">{result.text}</div>
             </CardContent>

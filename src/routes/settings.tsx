@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Building2, Bell, Palette, Save, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CURRENCIES, usePreferences, type CurrencyCode, type Theme } from "@/lib/preferences";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Settings — Marginflow" }] }),
@@ -36,9 +38,15 @@ function Section({ icon: Icon, title, desc, children }: { icon: any; title: stri
 }
 
 function SettingsPage() {
+  const { theme, setTheme, currency, setCurrency } = usePreferences();
   const [threshold, setThreshold] = useState([15]);
-  const [theme, setTheme] = useState("system");
   const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setSaved(true);
+    toast.success("Settings saved", { description: "Your preferences are stored locally." });
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   return (
     <DashboardLayout title="Settings" subtitle="Configure your workspace and preferences">
@@ -48,13 +56,12 @@ function SettingsPage() {
             <div className="space-y-1.5"><Label>Business name</Label><Input defaultValue="Marginflow Co." className="h-10 rounded-lg" /></div>
             <div className="space-y-1.5"><Label>Store URL</Label><Input defaultValue="marginflow.shop" className="h-10 rounded-lg" /></div>
             <div className="space-y-1.5"><Label>Default currency</Label>
-              <Select defaultValue="USD"><SelectTrigger className="h-10 rounded-lg"><SelectValue /></SelectTrigger>
+              <Select value={currency} onValueChange={(v) => { setCurrency(v as CurrencyCode); toast.success(`Currency set to ${v}`); }}>
+                <SelectTrigger className="h-10 rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="USD">USD — US Dollar</SelectItem>
-                  <SelectItem value="EUR">EUR — Euro</SelectItem>
-                  <SelectItem value="GBP">GBP — Pound Sterling</SelectItem>
-                  <SelectItem value="CAD">CAD — Canadian Dollar</SelectItem>
-                  <SelectItem value="AUD">AUD — Australian Dollar</SelectItem>
+                  {(Object.keys(CURRENCIES) as CurrencyCode[]).map((c) => (
+                    <SelectItem key={c} value={c}>{c} — {CURRENCIES[c].name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -105,10 +112,10 @@ function SettingsPage() {
         <Section icon={Palette} title="Appearance" desc="Customize how Marginflow looks">
           <div className="space-y-1.5"><Label>Theme</Label>
             <div className="grid grid-cols-3 gap-2">
-              {["light", "dark", "system"].map(t => (
+              {(["light", "dark", "system"] as Theme[]).map(t => (
                 <button
                   key={t}
-                  onClick={() => setTheme(t)}
+                  onClick={() => { setTheme(t); toast(`Theme: ${t}`); }}
                   className={cn(
                     "rounded-xl border-2 p-3 text-sm font-medium capitalize transition-all",
                     theme === t ? "border-primary bg-primary/5 text-primary" : "border-border/60 hover:bg-secondary/40"
@@ -133,7 +140,7 @@ function SettingsPage() {
       <div className="flex items-center justify-end gap-3 sticky bottom-4 bg-card/80 backdrop-blur-xl rounded-2xl border border-border/60 p-3 shadow-[var(--shadow-card)]">
         {saved && <span className="text-sm text-[color:var(--success)] font-medium">✓ Settings saved</span>}
         <Button variant="outline" className="rounded-lg">Cancel</Button>
-        <Button className="rounded-lg gap-2" onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}>
+        <Button className="rounded-lg gap-2" onClick={handleSave}>
           <Save className="h-4 w-4" /> Save changes
         </Button>
       </div>
