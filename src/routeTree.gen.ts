@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as ExpensesRouteImport } from './routes/expenses'
@@ -20,6 +21,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProductsRoute = ProductsRouteImport.update({
@@ -60,6 +66,7 @@ export interface FileRoutesByFullPath {
   '/expenses': typeof ExpensesRoute
   '/integrations': typeof IntegrationsRoute
   '/products': typeof ProductsRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
@@ -69,6 +76,7 @@ export interface FileRoutesByTo {
   '/expenses': typeof ExpensesRoute
   '/integrations': typeof IntegrationsRoute
   '/products': typeof ProductsRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
@@ -79,6 +87,7 @@ export interface FileRoutesById {
   '/expenses': typeof ExpensesRoute
   '/integrations': typeof IntegrationsRoute
   '/products': typeof ProductsRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
@@ -90,6 +99,7 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/integrations'
     | '/products'
+    | '/profile'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -99,6 +109,7 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/integrations'
     | '/products'
+    | '/profile'
     | '/settings'
   id:
     | '__root__'
@@ -108,6 +119,7 @@ export interface FileRouteTypes {
     | '/expenses'
     | '/integrations'
     | '/products'
+    | '/profile'
     | '/settings'
   fileRoutesById: FileRoutesById
 }
@@ -118,6 +130,7 @@ export interface RootRouteChildren {
   ExpensesRoute: typeof ExpensesRoute
   IntegrationsRoute: typeof IntegrationsRoute
   ProductsRoute: typeof ProductsRoute
+  ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -128,6 +141,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products': {
@@ -182,6 +202,7 @@ const rootRouteChildren: RootRouteChildren = {
   ExpensesRoute: ExpensesRoute,
   IntegrationsRoute: IntegrationsRoute,
   ProductsRoute: ProductsRoute,
+  ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
