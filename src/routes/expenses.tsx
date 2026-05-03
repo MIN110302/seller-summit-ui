@@ -50,9 +50,18 @@ const expenses = [
 ];
 
 function ExpensesPage() {
+  const { format } = usePreferences();
   const [open, setOpen] = useState(false);
   const total = categories.reduce((a, c) => a + c.value, 0);
   const top = categories.reduce((a, c) => (c.value > a.value ? c : a));
+
+  const handleExport = () => {
+    downloadCSV(
+      "marginflow-expenses.csv",
+      expenses.map((e) => ({ Date: e.date, Description: e.desc, Category: e.cat, Amount: e.amount.toFixed(2) })),
+    );
+    toast.success("Exported expenses.csv");
+  };
 
   return (
     <DashboardLayout title="Expenses" subtitle="Track every dollar leaving your business">
@@ -64,17 +73,21 @@ function ExpensesPage() {
         <CardContent className="p-6 relative flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="text-xs uppercase tracking-wider opacity-80 font-semibold">Total expenses · this month</div>
-            <div className="text-4xl font-semibold tracking-tight mt-2">${total.toLocaleString()}</div>
+            <div className="text-4xl font-semibold tracking-tight mt-2">{format(total, { decimals: 0 })}</div>
             <div className="text-sm opacity-90 mt-1 flex items-center gap-2">
-              <Crown className="h-4 w-4" /> Largest category: <span className="font-semibold">{top.key}</span> (${top.value.toLocaleString()})
+              <Crown className="h-4 w-4" /> Largest category: <span className="font-semibold">{top.key}</span> ({format(top.value, { decimals: 0 })})
             </div>
           </div>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="bg-white text-primary hover:bg-white/90 gap-2 rounded-lg">
-                <Plus className="h-4 w-4" /> Add Expense
-              </Button>
-            </DialogTrigger>
+          <div className="flex gap-2">
+            <Button variant="outline" className="bg-white/10 border-white/20 text-white hover:bg-white/20 gap-2 rounded-lg" onClick={handleExport}>
+              <Download className="h-4 w-4" /> Export
+            </Button>
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button className="bg-white text-primary hover:bg-white/90 gap-2 rounded-lg">
+                  <Plus className="h-4 w-4" /> Add Expense
+                </Button>
+              </DialogTrigger>
             <DialogContent>
               <DialogHeader>
                 <DialogTitle>Add new expense</DialogTitle>
