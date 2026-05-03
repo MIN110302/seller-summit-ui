@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Building2, Bell, Palette, Save, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CURRENCIES, usePreferences, type CurrencyCode, type Theme } from "@/lib/preferences";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings")({
   head: () => ({ meta: [{ title: "Settings — Marginflow" }] }),
