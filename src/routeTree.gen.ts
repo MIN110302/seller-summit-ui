@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as IntegrationsRouteImport } from './routes/integrations'
 import { Route as ExpensesRouteImport } from './routes/expenses'
 import { Route as CalculatorRouteImport } from './routes/calculator'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
@@ -18,6 +19,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegrationsRoute = IntegrationsRouteImport.update({
+  id: '/integrations',
+  path: '/integrations',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExpensesRoute = ExpensesRouteImport.update({
@@ -46,6 +52,7 @@ export interface FileRoutesByFullPath {
   '/analytics': typeof AnalyticsRoute
   '/calculator': typeof CalculatorRoute
   '/expenses': typeof ExpensesRoute
+  '/integrations': typeof IntegrationsRoute
   '/products': typeof ProductsRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/analytics': typeof AnalyticsRoute
   '/calculator': typeof CalculatorRoute
   '/expenses': typeof ExpensesRoute
+  '/integrations': typeof IntegrationsRoute
   '/products': typeof ProductsRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/analytics': typeof AnalyticsRoute
   '/calculator': typeof CalculatorRoute
   '/expenses': typeof ExpensesRoute
+  '/integrations': typeof IntegrationsRoute
   '/products': typeof ProductsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analytics' | '/calculator' | '/expenses' | '/products'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/calculator'
+    | '/expenses'
+    | '/integrations'
+    | '/products'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/calculator' | '/expenses' | '/products'
+  to:
+    | '/'
+    | '/analytics'
+    | '/calculator'
+    | '/expenses'
+    | '/integrations'
+    | '/products'
   id:
     | '__root__'
     | '/'
     | '/analytics'
     | '/calculator'
     | '/expenses'
+    | '/integrations'
     | '/products'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +104,7 @@ export interface RootRouteChildren {
   AnalyticsRoute: typeof AnalyticsRoute
   CalculatorRoute: typeof CalculatorRoute
   ExpensesRoute: typeof ExpensesRoute
+  IntegrationsRoute: typeof IntegrationsRoute
   ProductsRoute: typeof ProductsRoute
 }
 
@@ -92,6 +115,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integrations': {
+      id: '/integrations'
+      path: '/integrations'
+      fullPath: '/integrations'
+      preLoaderRoute: typeof IntegrationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/expenses': {
@@ -130,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnalyticsRoute: AnalyticsRoute,
   CalculatorRoute: CalculatorRoute,
   ExpensesRoute: ExpensesRoute,
+  IntegrationsRoute: IntegrationsRoute,
   ProductsRoute: ProductsRoute,
 }
 export const routeTree = rootRouteImport
