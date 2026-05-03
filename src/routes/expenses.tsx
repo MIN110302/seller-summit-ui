@@ -9,9 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Megaphone, Truck, CreditCard, Wrench, RefreshCw, Box, Plus, Crown } from "lucide-react";
+import { Megaphone, Truck, CreditCard, Wrench, RefreshCw, Box, Plus, Crown, Download } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { cn } from "@/lib/utils";
+import { usePreferences } from "@/lib/preferences";
+import { downloadCSV } from "@/lib/csv";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/expenses")({
   head: () => ({ meta: [{ title: "Expenses — Marginflow" }] }),
