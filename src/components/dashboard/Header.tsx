@@ -11,13 +11,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-export function Header({ title }: { title: string }) {
+export function Header({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <header className="sticky top-0 z-20 border-b border-border/70 bg-card/80 backdrop-blur-xl">
       <div className="flex h-16 items-center gap-4 px-4 md:px-8">
-        <div className="flex flex-col">
-          <h1 className="text-[20px] font-semibold tracking-tight text-foreground leading-none">{title}</h1>
-          <span className="text-xs text-muted-foreground mt-1">Welcome back, Alex — here's your store today.</span>
+        <div className="flex flex-col min-w-0">
+          <h1 className="text-[20px] font-semibold tracking-tight text-foreground leading-none truncate">{title}</h1>
+          <span className="text-xs text-muted-foreground mt-1 truncate">{subtitle ?? "Welcome back, Alex — here's your store today."}</span>
         </div>
         <div className="ml-auto flex items-center gap-2 md:gap-2.5">
           <div className="relative hidden md:block">
