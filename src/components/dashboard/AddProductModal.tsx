@@ -30,7 +30,7 @@ export function AddProductModal({ trigger, className }: { trigger?: React.ReactN
   };
 
   const preview = computeProfit({
-    id: "x", name: "", emoji: "", sku: "", category: "",
+    id: "x", emoji: "", sku: "", category: "",
     sales: 0, stock: 0, ...form,
   });
 
