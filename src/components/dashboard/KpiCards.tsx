@@ -6,7 +6,8 @@ import { usePreferences } from "@/lib/preferences";
 const baseKpis = [
   {
     label: "Total Revenue",
-    value: "$48,920",
+    raw: 48920,
+    isCurrency: true,
     delta: "+12.4%",
     up: true,
     hint: "vs last 30 days",
@@ -18,7 +19,8 @@ const baseKpis = [
   },
   {
     label: "Net Profit",
-    value: "$13,840",
+    raw: 13840,
+    isCurrency: true,
     delta: "+8.1%",
     up: true,
     hint: "vs last 30 days",
@@ -30,7 +32,8 @@ const baseKpis = [
   },
   {
     label: "Avg. Margin Rate",
-    value: "28.3%",
+    raw: 28.3,
+    isCurrency: false,
     delta: "-1.2%",
     up: false,
     hint: "vs last 30 days",
@@ -42,7 +45,8 @@ const baseKpis = [
   },
   {
     label: "Ad Spend",
-    value: "$7,420",
+    raw: 7420,
+    isCurrency: true,
     delta: "+18.0%",
     up: false,
     hint: "watch carefully",
