@@ -38,9 +38,15 @@ function Section({ icon: Icon, title, desc, children }: { icon: any; title: stri
 }
 
 function SettingsPage() {
+  const { theme, setTheme, currency, setCurrency } = usePreferences();
   const [threshold, setThreshold] = useState([15]);
-  const [theme, setTheme] = useState("system");
   const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setSaved(true);
+    toast.success("Settings saved", { description: "Your preferences are stored locally." });
+    setTimeout(() => setSaved(false), 2000);
+  };
 
   return (
     <DashboardLayout title="Settings" subtitle="Configure your workspace and preferences">
@@ -50,13 +56,12 @@ function SettingsPage() {
             <div className="space-y-1.5"><Label>Business name</Label><Input defaultValue="Marginflow Co." className="h-10 rounded-lg" /></div>
             <div className="space-y-1.5"><Label>Store URL</Label><Input defaultValue="marginflow.shop" className="h-10 rounded-lg" /></div>
             <div className="space-y-1.5"><Label>Default currency</Label>
-              <Select defaultValue="USD"><SelectTrigger className="h-10 rounded-lg"><SelectValue /></SelectTrigger>
+              <Select value={currency} onValueChange={(v) => { setCurrency(v as CurrencyCode); toast.success(`Currency set to ${v}`); }}>
+                <SelectTrigger className="h-10 rounded-lg"><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="USD">USD — US Dollar</SelectItem>
-                  <SelectItem value="EUR">EUR — Euro</SelectItem>
-                  <SelectItem value="GBP">GBP — Pound Sterling</SelectItem>
-                  <SelectItem value="CAD">CAD — Canadian Dollar</SelectItem>
-                  <SelectItem value="AUD">AUD — Australian Dollar</SelectItem>
+                  {(Object.keys(CURRENCIES) as CurrencyCode[]).map((c) => (
+                    <SelectItem key={c} value={c}>{c} — {CURRENCIES[c].name}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
