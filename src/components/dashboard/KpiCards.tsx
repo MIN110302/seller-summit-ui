@@ -1,8 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowDownRight, ArrowUpRight, DollarSign, Megaphone, Percent, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePreferences } from "@/lib/preferences";
 
-const kpis = [
+const baseKpis = [
   {
     label: "Total Revenue",
     value: "$48,920",
