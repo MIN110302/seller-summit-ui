@@ -36,7 +36,7 @@ export function Sidebar() {
     return (
       <Link
         key={item.url}
-        to={item.url}
+        to={item.url as string}
         className={cn(
           "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
           active
