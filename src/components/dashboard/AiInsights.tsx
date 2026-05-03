@@ -50,10 +50,10 @@ export function AiInsights() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <CardTitle className="text-[15px] font-semibold text-primary-foreground">AI Financial Assistant</CardTitle>
+              <CardTitle className="text-[15px] font-semibold text-primary-foreground">AI Margin Assistant</CardTitle>
               <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-white/15">BETA</span>
             </div>
-            <p className="text-xs text-primary-foreground/75 mt-0.5">4 new findings from your store</p>
+            <p className="text-xs text-primary-foreground/75 mt-0.5">Smart insights on margin risks, ad spend, and pricing</p>
           </div>
         </div>
       </div>
