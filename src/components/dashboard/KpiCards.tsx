@@ -112,7 +112,7 @@ export function KpiCards() {
               {k.value}
             </div>
             <div className="mt-3">
-              <Sparkline data={k.spark} color={`var(--${k.accent.includes("var") ? k.accent.replace(/var\(--|\)/g, "") : k.accent})`} />
+              <Sparkline data={k.spark} color={k.accent.startsWith("var(") ? k.accent : `var(--${k.accent})`} />
             </div>
             <div className="mt-2 text-[11px] text-muted-foreground">{k.hint}</div>
           </CardContent>
