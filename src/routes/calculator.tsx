@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Calculator, Info, RotateCcw, TrendingUp, Target, Percent, DollarSign } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePreferences } from "@/lib/preferences";
+import { ModeToggle } from "@/components/dashboard/ModeToggle";
 
 export const Route = createFileRoute("/calculator")({
   head: () => ({ meta: [{ title: "Profit Calculator — Marginflow" }] }),
