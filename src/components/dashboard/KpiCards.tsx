@@ -83,6 +83,11 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
 }
 
 export function KpiCards() {
+  const { format } = usePreferences();
+  const kpis = baseKpis.map((k) => ({
+    ...k,
+    value: k.isCurrency ? format(k.raw, { decimals: 0 }) : `${k.raw}%`,
+  }));
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
       {kpis.map((k) => (
