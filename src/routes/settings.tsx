@@ -140,7 +140,7 @@ function SettingsPage() {
       <div className="flex items-center justify-end gap-3 sticky bottom-4 bg-card/80 backdrop-blur-xl rounded-2xl border border-border/60 p-3 shadow-[var(--shadow-card)]">
         {saved && <span className="text-sm text-[color:var(--success)] font-medium">✓ Settings saved</span>}
         <Button variant="outline" className="rounded-lg">Cancel</Button>
-        <Button className="rounded-lg gap-2" onClick={() => { setSaved(true); setTimeout(() => setSaved(false), 2000); }}>
+        <Button className="rounded-lg gap-2" onClick={handleSave}>
           <Save className="h-4 w-4" /> Save changes
         </Button>
       </div>
