@@ -119,10 +119,11 @@ function ExpensesPage() {
               </div>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button onClick={() => setOpen(false)}>Save expense</Button>
+                <Button onClick={() => { setOpen(false); toast.success("Expense added"); }}>Save expense</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          </div>
         </CardContent>
       </Card>
 
