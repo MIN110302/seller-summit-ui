@@ -34,9 +34,9 @@ export function Sidebar() {
   const renderItem = (item: { title: string; url: string; icon: typeof LayoutDashboard }) => {
     const active = path === item.url;
     return (
-      <a
+      <Link
         key={item.url}
-        href={item.url}
+        to={item.url}
         className={cn(
           "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
           active
@@ -49,7 +49,7 @@ export function Sidebar() {
         )}
         <item.icon className={cn("h-[18px] w-[18px] transition-colors", active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
         <span>{item.title}</span>
-      </a>
+      </Link>
     );
   };
 
