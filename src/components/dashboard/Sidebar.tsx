@@ -1,4 +1,4 @@
-import { useRouterState } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Package,
@@ -13,6 +13,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { memo } from "react";
 
 const mainItems = [
   { title: "Dashboard", url: "/", icon: LayoutDashboard },
@@ -20,43 +21,44 @@ const mainItems = [
   { title: "Profit Calculator", url: "/calculator", icon: Calculator },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Expenses", url: "/expenses", icon: Receipt },
-];
+] as const;
 
 const accountItems = [
   { title: "Integrations", url: "/integrations", icon: Plug },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Profile", url: "/profile", icon: User },
-];
+] as const;
 
-export function Sidebar() {
+type Item = { title: string; url: string; icon: typeof LayoutDashboard };
+
+function NavItem({ item, active }: { item: Item; active: boolean }) {
+  return (
+    <Link
+      to={item.url}
+      preload="intent"
+      className={cn(
+        "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+        active
+          ? "bg-primary/8 text-primary"
+          : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
+      )}
+    >
+      {active && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
+      )}
+      <item.icon className={cn("h-[18px] w-[18px]", active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
+      <span>{item.title}</span>
+    </Link>
+  );
+}
+
+function SidebarBase() {
   const path = useRouterState({ select: (s) => s.location.pathname });
-
-  const renderItem = (item: { title: string; url: string; icon: typeof LayoutDashboard }) => {
-    const active = path === item.url;
-    return (
-      <a
-        key={item.url}
-        href={item.url}
-        className={cn(
-          "group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all",
-          active
-            ? "bg-primary/8 text-primary"
-            : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
-        )}
-      >
-        {active && (
-          <span className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[3px] rounded-r-full bg-primary" />
-        )}
-        <item.icon className={cn("h-[18px] w-[18px] transition-colors", active ? "text-primary" : "text-muted-foreground group-hover:text-foreground")} />
-        <span>{item.title}</span>
-      </a>
-    );
-  };
 
   return (
     <aside className="hidden lg:flex fixed left-0 top-0 h-screen w-64 flex-col border-r border-border/70 bg-card z-30">
       <div className="flex items-center gap-2.5 px-6 h-16 border-b border-border/70">
-        <div className="relative flex h-9 w-9 items-center justify-center rounded-xl text-primary-foreground shadow-[var(--shadow-glow)]" style={{ background: "var(--gradient-primary)" }}>
+        <div className="relative flex h-9 w-9 items-center justify-center rounded-xl text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
           <TrendingUp className="h-[18px] w-[18px]" />
         </div>
         <div className="leading-tight">
@@ -69,12 +71,20 @@ export function Sidebar() {
         <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
           Workspace
         </div>
-        <div className="space-y-0.5">{mainItems.map(renderItem)}</div>
+        <div className="space-y-0.5">
+          {mainItems.map((item) => (
+            <NavItem key={item.url} item={item} active={path === item.url} />
+          ))}
+        </div>
 
         <div className="px-3 pt-6 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground/70">
           Account
         </div>
-        <div className="space-y-0.5">{accountItems.map(renderItem)}</div>
+        <div className="space-y-0.5">
+          {accountItems.map((item) => (
+            <NavItem key={item.url} item={item} active={path === item.url} />
+          ))}
+        </div>
       </nav>
 
       <div className="px-3 pb-2">
@@ -86,9 +96,8 @@ export function Sidebar() {
 
       <div
         className="m-3 rounded-2xl p-4 text-primary-foreground relative overflow-hidden"
-        style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-elegant)" }}
+        style={{ background: "var(--gradient-primary)" }}
       >
-        <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
         <div className="relative">
           <div className="flex items-center gap-1.5 text-[11px] font-medium opacity-90">
             <Sparkles className="h-3 w-3" /> PRO PLAN
@@ -103,3 +112,5 @@ export function Sidebar() {
     </aside>
   );
 }
+
+export const Sidebar = memo(SidebarBase);
