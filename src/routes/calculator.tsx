@@ -122,7 +122,7 @@ function CalculatorPage() {
             <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-3xl" />
             <CardContent className="p-6 relative">
               <div className="text-xs font-semibold uppercase tracking-wider opacity-90">{result.label}</div>
-              <div className="mt-3 text-4xl font-semibold tracking-tight">${calc.profit.toFixed(2)}</div>
+              <div className="mt-3 text-4xl font-semibold tracking-tight">{format(calc.profit)}</div>
               <div className="mt-1 text-sm opacity-90">{calc.margin.toFixed(1)}% margin per unit</div>
               <div className="mt-4 text-sm opacity-90 leading-relaxed">{result.text}</div>
             </CardContent>
