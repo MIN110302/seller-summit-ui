@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export function Header({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-border/70 bg-card/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-20 border-b border-border/70 bg-card/95">
       <div className="flex h-16 items-center gap-4 px-4 md:px-8">
         <div className="flex flex-col min-w-0">
           <h1 className="text-[20px] font-semibold tracking-tight text-foreground leading-none truncate">{title}</h1>
