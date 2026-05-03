@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Package,
@@ -40,9 +40,9 @@ export function Sidebar() {
         {items.map((item) => {
           const active = path === item.url;
           return (
-            <Link
+            <a
               key={item.url}
-              to={item.url}
+              href={item.url}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 active
@@ -52,7 +52,7 @@ export function Sidebar() {
             >
               <item.icon className="h-4 w-4" />
               {item.title}
-            </Link>
+            </a>
           );
         })}
       </nav>
