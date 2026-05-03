@@ -112,10 +112,10 @@ function SettingsPage() {
         <Section icon={Palette} title="Appearance" desc="Customize how Marginflow looks">
           <div className="space-y-1.5"><Label>Theme</Label>
             <div className="grid grid-cols-3 gap-2">
-              {["light", "dark", "system"].map(t => (
+              {(["light", "dark", "system"] as Theme[]).map(t => (
                 <button
                   key={t}
-                  onClick={() => setTheme(t)}
+                  onClick={() => { setTheme(t); toast(`Theme: ${t}`); }}
                   className={cn(
                     "rounded-xl border-2 p-3 text-sm font-medium capitalize transition-all",
                     theme === t ? "border-primary bg-primary/5 text-primary" : "border-border/60 hover:bg-secondary/40"
